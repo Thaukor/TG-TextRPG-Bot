@@ -12,8 +12,8 @@ with open('token', 'r') as token:
     updater = Updater(token=token.read(), use_context=True)
 dispatcher = updater.dispatcher
 
-def create_or_connect():
-    con = None
+def create_or_connect() -> sql.Connection:
+    con: sql.Connection = None
     try:
         con = sql.connect(db)
         print("Connection successful")
@@ -39,7 +39,14 @@ def help(update: Update, context: CallbackContext):
 
 
 def create_warrior(update: Update, context: CallbackContext):
-    pass
+    context.bot.send_message(chat_id = get_chat_id(update, context), text="Creando guerrero de nombre: " + context.args[0])
+
+    con = create_or_connect()
+    cur = con.cursor()
+
+    cur.execute(f"""INSERT INTO pjs VALUES ('{context.args[0]}', 'warr', '{update.effective_message.from_user.id}')""")
+    con.commit()
+    con.close()
 
 def get_chat_id(update: Update, context: CallbackContext):
     chat_id = -1
@@ -54,12 +61,9 @@ def get_chat_id(update: Update, context: CallbackContext):
     return chat_id
 
 def main():
-    create_or_connect()
+    pass
 
-if __name__ == "__main__":
-    create_or_connect()
-
-create_warrior_handler = CommandHandler('create_warrior', create_warrior)
+create_warrior_handler = CommandHandler('new_warrior', create_warrior)
 dispatcher.add_handler(create_warrior_handler)
 
 help_handler = CommandHandler('help', help)
