@@ -87,8 +87,10 @@ def init() -> Tuple[sql.Connection, sql.Cursor]:
     (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
-        class INTEGER,
-        user_id INTEGER
+        class_id INTEGER,
+        user_id INTEGER,
+
+        FOREIGN KEY(class_id) REFERENCES classes(id) 
     );
     
     CREATE TABLE 'pjs_stats' (
