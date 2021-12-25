@@ -95,6 +95,22 @@ def stats(update: Update, context: CallbackContext) -> None:
     
     context.bot.send_message(chat_id = get_chat_id(update, context), text = msg)
 
+def delete_pj(update: Update, context: CallbackContext) -> None:
+    con = create_or_connect()
+    cur = con.cursor()
+
+    chat_id =  get_chat_id(update, context)
+    cur.execute(f"SELECT id, name FROM pjs WHERE user_id = {update.effective_message.from_user.id}")
+    
+    pj = cur.fetchone()
+
+    cur.execute("DELETE FROM pjs WHERE name = ?", [context.args[0]])
+    con.commit()
+    
+    context.bot.send_message(chat_id = chat_id, text = f"Personaje {pj[1]} eliminado")
+
+    con.close()
+
 def get_chat_id(update: Update, context: CallbackContext) -> int:
     chat_id = -1
 
@@ -118,6 +134,9 @@ dispatcher.add_handler(help_handler)
 
 stats_handler = CommandHandler('stats', stats)
 dispatcher.add_handler(stats_handler)
+
+delete_pj_handler = CommandHandler('delete', delete_pj)
+dispatcher.add_handler(delete_pj_handler)
 
 updater.start_polling()
 
